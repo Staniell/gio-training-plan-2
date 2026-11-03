@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\CourseHub.Core\CourseHub.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+@base = http://localhost:5090
+
+GET {{base}}/api/courses/1
+
+###
+GET {{base}}/api/courses
+
+###
+POST {{base}}/api/courses/1/enrollments
+X-User-Id: learner-100
+
+###
+GET {{base}}/api/me/enrollments
+X-User-Id: learner-100
