@@ -6,9 +6,9 @@ Where credentials live for CourseHub (`gio-training-plan-2`) and the Plan 1 repo
 
 | Secret | Dev | CI | Production |
 |---|---|---|---|
-| CourseHub Postgres password | Gitignored `.env` key `POSTGRES_PASSWORD` for the container. The API reads `ConnectionStrings:CourseHub` from `dotnet user-secrets`, not from `appsettings.json`. | GitHub Actions builds and runs unit tests only. No database and no secret. | Not deployed. When it is, set the connection string in App Service configuration or Key Vault. Not in the image and not in the repo. |
-| HelloLogging Postgres password | Gitignored `.env` key `POSTGRES_PASSWORD`. Compose injects it into `POSTGRES_PASSWORD` and `ConnectionStrings__Db`. For `dotnet run` against Postgres, the same value is user-secrets `ConnectionStrings:Db`. | No CI job uses this database. | Not deployed. Same rule: host settings or Key Vault. |
-| HelloLogging Grafana admin password | Gitignored `.env` key `GRAFANA_ADMIN_PASSWORD`, injected as `GF_SECURITY_ADMIN_PASSWORD`. | Not used in CI. | Not deployed. |
+| CourseHub Postgres password | Gitignored `.env` key `POSTGRES_PASSWORD`. Compose loads that file with `env_file`. The API reads `ConnectionStrings:CourseHub` from `dotnet user-secrets`, not from `appsettings.json`. | GitHub Actions builds and runs unit tests only. No database and no secret. | Not deployed. When it is, set the connection string in App Service configuration or Key Vault. Not in the image and not in the repo. |
+| HelloLogging Postgres password | Gitignored `.env` key `POSTGRES_PASSWORD`, loaded with `env_file`. The API appends it to `ConnectionStrings__Db` at startup when that string has no password yet. For `dotnet run` on the host, user-secrets `ConnectionStrings:Db` holds the full string. | No CI job uses this database. | Not deployed. Same rule: host settings or Key Vault. |
+| HelloLogging Grafana admin password | Gitignored `.env` key `GF_SECURITY_ADMIN_PASSWORD`. Compose loads `.env` with `env_file`, so the yaml file has no password value. | Not used in CI. | Not deployed. |
 
 `.env.example` is committed and has the key names with placeholder values. `.env` is gitignored.
 
@@ -38,5 +38,7 @@ If a value had been a real credential, the order would be: revoke it and record 
 ## Plan 1 findings
 
 1. `compose.yaml:12` — Username Password inside `ConnectionStrings__Db`. Dev-only placeholder. Moved to `POSTGRES_PASSWORD` in `.env`. The same value on line 24 was removed in the same change.
-2. `compose.yaml:65` — Generic Password, Grafana admin. Dev-only placeholder. Moved to `GRAFANA_ADMIN_PASSWORD` in `.env`.
-3. `outputs/w2-thu-monitoring-deliverable-summary.md:47` (same value on line 46) — Curl Username Password. Same Grafana placeholder. The commands now read `GRAFANA_ADMIN_PASSWORD` from the environment. Copies in `README.md` (the services table and the dashboard URL) were removed as well.
+2. `compose.yaml:65` — Generic Password, Grafana admin. Dev-only placeholder. Moved to `GF_SECURITY_ADMIN_PASSWORD` in `.env`.
+3. `outputs/w2-thu-monitoring-deliverable-summary.md:47` (same value on line 46) — Curl Username Password. Same Grafana placeholder. The commands now read `GF_SECURITY_ADMIN_PASSWORD` from the environment. Copies in `README.md` (the services table and the dashboard URL) were removed as well.
+
+GitGuardian's check on Plan 1 PR 2 still lists the original commits. The scan covers every commit in the pull request, not only the latest tree. Those three historical occurrences stay until history is rewritten. The latest commit does not add a password literal.

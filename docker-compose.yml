@@ -1,10 +1,11 @@
 services:
   postgres:
     image: postgres:17
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: coursehub
       POSTGRES_USER: coursehub
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
       - "5432:5432"
     healthcheck:
